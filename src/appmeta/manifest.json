@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "id": "app.nortick.break-time",
+  "name": "Break Time",
+  "version": "0.1.0",
+  "api_version": "27.12.0",
+  "description": "A little worker keeps the clock, changing every digit his own way",
+  "author": "nortick",
+  "heap_size_kib": 192
+}

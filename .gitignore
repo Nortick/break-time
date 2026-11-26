@@ -1,0 +1,40 @@
+node_modules
+dist
+*.log
+
+# Yarn 2+ install state, rebuilt on every install
+.yarn/install-state.gz
+
+# Vite reads these, and they tend to hold secrets
+.env
+.env.*
+
+# Editor and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# Not part of the published app
+# - copies of the bar's own built-in animations (reference only, not ours to publish)
+/animations/
+# - backups, old copies and working notes
+/backup-*/
+/worker-clock-src/
+/Claude outputs/
+CLAUDE-NOTES.md
+# - build helpers made by npm run bake / npm run sfx, and the sound preview
+tools/.bake.cjs
+tools/.sfx.cjs
+tools/sfx-preview.*
+
+# src/animations, src/sounds and src/baked.ts ARE committed on purpose:
+# busy-cli build does not run the bake, so the catalog needs them in the repo.
+
+# Kept out of the public repository by BUSY Bar Emulator
+.busy/
+submission/
+._*
+Thumbs.db
+desktop.ini

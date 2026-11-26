@@ -1,0 +1,117 @@
+{
+  "format_version": 1,
+  "version": 1,
+  "fields": {
+    "hour24": {
+      "type": "boolean",
+      "label": "24-hour clock",
+      "default": true
+    },
+    "focus": {
+      "type": "integer",
+      "label": "Focus timer (min)",
+      "default": 25,
+      "min": 5,
+      "max": 120,
+      "step": 5
+    },
+    "break": {
+      "type": "integer",
+      "label": "Break (min)",
+      "default": 5,
+      "min": 5,
+      "max": 30,
+      "step": 5
+    },
+    "sound": {
+      "type": "enum",
+      "label": "Sound",
+      "default": "normal",
+      "options": [
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "quiet",
+          "label": "Quiet"
+        },
+        {
+          "value": "off",
+          "label": "Off"
+        }
+      ]
+    },
+    "night": {
+      "type": "boolean",
+      "label": "Sleeps at night (23-7)",
+      "default": true
+    },
+    "background": {
+      "type": "enum",
+      "label": "Background",
+      "default": "night",
+      "options": [
+        {
+          "value": "night",
+          "label": "Night sky"
+        },
+        {
+          "value": "fan",
+          "label": "Ceiling fan"
+        },
+        {
+          "value": "flow",
+          "label": "Flow"
+        },
+        {
+          "value": "steel",
+          "label": "Steel plate"
+        },
+        {
+          "value": "sparks",
+          "label": "Forge sparks"
+        },
+        {
+          "value": "blueprint",
+          "label": "Blueprint"
+        },
+        {
+          "value": "rain",
+          "label": "Rain"
+        },
+        {
+          "value": "lamp",
+          "label": "Lamp"
+        },
+        {
+          "value": "aurora",
+          "label": "Aurora"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ]
+    },
+    "garland": {
+      "type": "enum",
+      "label": "Garland",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "Dec 1 - Jan 14"
+        },
+        {
+          "value": "on",
+          "label": "Always"
+        },
+        {
+          "value": "off",
+          "label": "Never"
+        }
+      ]
+    }
+  }
+}

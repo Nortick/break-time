@@ -1,0 +1,6 @@
+{
+  "category": "clocks",
+  "short_description": "A tiny pixel worker changes every digit his own way, plus a focus timer",
+  "description": "Break Time is a clock with a tiny pixel worker who lives on your BUSY Bar and changes the digits himself, and never the same way twice. Every minute he has something new up his sleeve, and every hour he puts on a big show. What exactly? You'll have to watch. He also has his own little habits, a few secrets for special times, and at night he sleeps on the job.\n\nPress Start for a focus timer: he counts your focus time down the same way, lets you know when it's over, and a break follows. Turn the wheel to add or take off 5 minutes.\n\nSettings: 12/24-hour clock, focus and break length, sound, night mode, 8 backgrounds and a New Year garland. Starts muted: hold OK to turn the sound on.",
+  "changelog": "First release"
+}

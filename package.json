@@ -1,0 +1,30 @@
+{
+  "name": "break-time",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Break Time",
+  "author": "nortick",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc",
+    "build": "busy-cli build",
+    "app:install": "busy-cli app install",
+    "app:uninstall": "busy-cli app uninstall",
+    "app:run": "busy-cli app run",
+    "app:stop": "busy-cli app stop",
+    "bake": "esbuild tools/bake.ts --bundle --platform=node --log-level=warning --alias:@shared/device=./tools/stub-device.ts --outfile=tools/.bake.cjs && node tools/.bake.cjs",
+    "sfx": "esbuild tools/sfx.ts --bundle --platform=node --log-level=warning --outfile=tools/.sfx.cjs && node tools/.sfx.cjs"
+  },
+  "engines": {
+    "node": ">=24 <26"
+  },
+  "devDependencies": {
+    "@busy-app/cli": "^0.6.0",
+    "typescript": "~6.0.3",
+    "vite": "8.1.4",
+    "esbuild": "^0.28.0"
+  },
+  "dependencies": {
+    "@busy-app/busy-lib": "^0.21.1"
+  }
+}
