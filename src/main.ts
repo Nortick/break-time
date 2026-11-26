@@ -9,7 +9,7 @@
 import { loadValues } from "@shared/settings";
 import { device } from "@shared/device";
 import manifest from "./appmeta/manifest.json";
-import { Screen, PALETTE, NO_TIMEOUT, sprite } from "./gfx";
+import { Screen, PALETTE, NO_TIMEOUT, sprite, setColor, type Sprite } from "./gfx";
 import { BLINK, FRONT, LOOK_UP, SHADES, BOTTLE, BOTTLE_X, BOTTLE_Y, COLON, COLON_X, COLON_Y } from "./art";
 import { linedUp } from "./events/lineup";
 import { makeWorld, render, type World } from "./world";
@@ -220,6 +220,9 @@ function main(): void {
   let timer: ReturnType<typeof setTimeout> | null = null;
   /** A redraw is already on its way for the wheel: more clicks before it only change the time (see the wheel). */
   let wheelSoon = false;
+  /** When the back display was last built, and whether draw() last turned PALETTE grey (paused). */
+  let lastBackAt = 0;
+  let wasPaused = false;
   let stopped = false;
   let restTicks = 0;
   /**
@@ -289,6 +292,7 @@ function main(): void {
     return `${t[0]}${t[1]}:${t[2]}${t[3]}`;
   };
   const back = () => {
+    lastBackAt = Date.now();
     const B = "back";
     const text = (id: string, t: string, x: number, y: number, font: string, color = "#FFFFFFFF", align = "top_left") =>
       screen.raw(id, { type: "text", display: B, text: t, x, y, align, font, color });
@@ -332,9 +336,12 @@ function main(): void {
     // The digits in the timer's color (the clock's white without it); the Screen sends them again when it changes.
     // Paused: everything grey and still (the background's grey file is one still frame), so it reads as stopped.
     const paused = !!(pomo && pomo.paused);
-    for (const c of Object.keys(COLORS)) PALETTE[c] = paused ? grey(COLORS[c]) : COLORS[c];
+    if (paused !== wasPaused) {
+      for (const c of Object.keys(COLORS)) setColor(c, paused ? GREYS[c] : COLORS[c]);
+      wasPaused = paused;
+    }
     const digit = pomo ? TIMER_COLORS[pomo.phase] : "#FFFFFF";
-    PALETTE["#"] = paused ? grey(digit) : digit;
+    setColor("#", paused ? grey(digit) : digit);
     const still = paused ? "_g" : "";
     render(w, screen);
     // The colon breathes: a looping animation in place of the still one, except while an hour scene draws it itself.
@@ -353,7 +360,7 @@ function main(): void {
       // The timer: a fuse along the floor in its color, burning down from the right, like the bar's own timer: what is
       // left of it is the time left; its end a white-hot spark (a little looping file). Paused: grey and out.
       const width = Math.round((72 * Math.max(0, leftMs())) / pomo.total);
-      PALETTE.U = dim(paused ? grey(digit) : digit, 0.8).slice(0, 7);
+      setColor("U", dim(paused ? grey(digit) : digit, 0.8).slice(0, 7));
       screen.raw("floor", null);
       // Over everything but the flash: above the worker, box and scene files (z 10); the spark one higher still.
       if (width > 0) screen.put("fuse", fuseOf(width), 0, 15, 11);
@@ -603,7 +610,8 @@ function main(): void {
       else if (r < 0.06) w.man.frame = BLINK;
       else if (r < 0.07 && restTicks > 40) w.man.frame = LOOK_UP;
     }
-    back();
+    // The back display says nothing that changes faster than once a second: no need to build it on every tick.
+    if (Date.now() - lastBackAt >= 900) back();
     draw();
     // While a scene plays, wake up right when it ends.
     const wait = playing ? Math.max(20, Math.min(IDLE_MS, playing.endAt - Date.now())) : IDLE_MS;
@@ -704,8 +712,10 @@ function dim(hex: string, k = 0.6): string {
 
 /** The timer's fuse, `width` pixels long, in "U" (its color is set in draw()). */
 const FUSE_ROW = "U".repeat(72);
-function fuseOf(width: number) {
-  return sprite([FUSE_ROW.slice(0, width)]);
+const FUSES: Record<number, Sprite> = {};
+function fuseOf(width: number): Sprite {
+  // One sprite for each width, kept: the Screen then sees the same picture and doesn't encode it again.
+  return FUSES[width] || (FUSES[width] = sprite([FUSE_ROW.slice(0, width)]));
 }
 
 /** A color ("#RRGGBB") as a grey of the same brightness: the paused timer shows everything grey. */
@@ -716,6 +726,8 @@ function grey(hex: string): string {
 }
 /** The colors as drawn normally (PALETTE is turned grey while the timer is paused, and back). */
 const COLORS: Record<string, string> = { ...PALETTE };
+const GREYS: Record<string, string> = {};
+for (const c of Object.keys(COLORS)) GREYS[c] = grey(COLORS[c]);
 
 /** The wheel on the timer: this much more or less time a click. At most 9:55 (the clock shows H:MM). */
 const WHEEL_STEP_MS = 5 * 60000;

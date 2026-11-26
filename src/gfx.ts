@@ -54,6 +54,16 @@ export const PALETTE: Record<string, string> = {
   K: "#000000", // his eyes: always black (the outline "k" is kept only over the digits), so no background shows through
 };
 
+/** Bumped whenever a PALETTE color changes (through setColor): pictures drawn with the old colors are encoded again. */
+let palVer = 0;
+/** Sets a PALETTE color at run time. Use this, not PALETTE[c] = ..., or the Screen keeps showing the old color. */
+export function setColor(c: string, v: string): void {
+  if (PALETTE[c] !== v) {
+    PALETTE[c] = v;
+    palVer++;
+  }
+}
+
 export function sprite(rows: string[]): Sprite {
   let w = 0;
   for (const r of rows) if (r.length > w) w = r.length;
@@ -156,6 +166,12 @@ interface Wanted {
 /** The front display as elements by id. Put what each element should show, then commit(): only changes are sent. */
 export class Screen {
   private wanted: Record<string, Wanted> = {};
+  /**
+   * What each element was last put with. The same picture at the same place in the same colors is not encoded again:
+   * on the bar encoding every picture on every tick took most of a tick (400-700 ms), and the wheel's clicks were
+   * dropped while it ran.
+   */
+  private memo: Record<string, { s: Sprite; x: number; y: number; z: number; v: number; sx: number; sy: number }> = {};
   private sent: Record<string, string> = {};
   private busy = false;
   /** When the request in flight went out, and which one it is (see commit()). */
@@ -173,7 +189,16 @@ export class Screen {
 
   /** Shows sprite `s` as element `id` with its top left corner at (x, y), or hides the element when `s` is null. */
   put(id: string, s: Sprite | null, x: number, y: number, z: number): void {
-    const e = s ? encode(s, Math.round(x) + this.shakeX, Math.round(y) + this.shakeY, 72, 16) : null;
+    if (!s) {
+      delete this.wanted[id];
+      delete this.memo[id];
+      return;
+    }
+    const m = this.memo[id];
+    if (m && m.s === s && m.x === x && m.y === y && m.z === z && m.v === palVer && m.sx === this.shakeX && m.sy === this.shakeY)
+      return; // as last time: what it wanted then still stands
+    this.memo[id] = { s, x, y, z, v: palVer, sx: this.shakeX, sy: this.shakeY };
+    const e = encode(s, Math.round(x) + this.shakeX, Math.round(y) + this.shakeY, 72, 16);
     if (!e) {
       delete this.wanted[id];
       return;
