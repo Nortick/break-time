@@ -218,6 +218,8 @@ function main(): void {
   const hacker = () => showing(13, 37);
   const fridayEvening = () => { const d = new Date(); return d.getDay() === 5 && d.getHours() >= 18; };
   let timer: ReturnType<typeof setTimeout> | null = null;
+  /** A redraw is already on its way for the wheel: more clicks before it only change the time (see the wheel). */
+  let wheelSoon = false;
   let stopped = false;
   let restTicks = 0;
   /**
@@ -493,6 +495,7 @@ function main(): void {
 
   const tick = () => {
     timer = null;
+    wheelSoon = false;
     if (stopped) return;
     const now = Date.now();
     if (flashing) {
@@ -673,8 +676,12 @@ function main(): void {
       else pomo.endAt = Date.now() + next;
       pomo.total = Math.max(next, pomo.total - cur + next); // the whole of it: the part gone by, and what is left now
       jumpNext = true; // the digits jump, no scene
+      // A quick spin sends many clicks at once. Each one only changes the time; the screen is drawn once, a moment
+      // after the first (drawing after every click made them queue up on the bar: seconds of lag for a long spin).
+      if (wheelSoon) return;
+      wheelSoon = true;
       if (timer !== null) clearTimeout(timer);
-      tick();
+      timer = setTimeout(tick, WHEEL_DRAW_MS);
     } else if (event.key === "ok" && event.action === "long") {
       // A long press: sound off, or on again (a short beep says it is back).
       muted = !muted;
@@ -713,6 +720,8 @@ const COLORS: Record<string, string> = { ...PALETTE };
 /** The wheel on the timer: this much more or less time a click. At most 9:55 (the clock shows H:MM). */
 const WHEEL_STEP_MS = 5 * 60000;
 const WHEEL_MAX_MS = (9 * 60 + 55) * 60000;
+/** The wheel: clicks this close after the first one are drawn together. */
+const WHEEL_DRAW_MS = 60;
 
 /** The flash (animations/flash.anim): how long it plays, and when it is at its brightest (keep in step with bake.ts). */
 const FLASH_MS = 1620;
